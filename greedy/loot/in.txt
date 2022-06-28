@@ -1,0 +1,23 @@
+3 50
+60 20
+100 50
+120 30
+
+fmt.Println(c)
+	fmt.Println(w)
+	a := NewSlice(w, c)
+	sort.Sort(a)
+	fmt.Println(a.c)
+	fmt.Println(a.w)
+
+    n := stops(d, m, s)
+	if n > len(s) {
+		fmt.Println(-1)
+	} else {
+		fmt.Println(n)
+	}
+	}
+    https://go.dev/play/p/sOvHJe62LSY
+
+// correct?
+    https://go.dev/play/p/ZeScHr3Rsw0

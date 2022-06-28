@@ -1,0 +1,14 @@
+
+
+func value(n int, a, b []int) []int {
+	if n == 0 {
+		return b
+	}
+
+	for i, v := range a {
+		if n == a {
+
+		}
+	}
+
+}
