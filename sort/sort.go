@@ -30,6 +30,7 @@ func merge(a, b []int) []int {
 	return c
 }
 
+// Mergesort
 func mergeSort(x []int) []int {
 	n := len(x)
 	if n == 1 {
@@ -40,6 +41,7 @@ func mergeSort(x []int) []int {
 	return merge(left, right)
 }
 
+// Quicksort
 func quickSort(x []int) []int {
 	if len(x) <= 1 {
 		return x
@@ -66,6 +68,7 @@ func quickSort(x []int) []int {
 	return small
 }
 
+// Quicksort with random seed
 func randSort(x []int) []int {
 	if len(x) <= 1 {
 		return x
@@ -95,10 +98,47 @@ func randSort(x []int) []int {
 	return small
 }
 
+// Tree sort
+type tree struct {
+	value       int
+	left, right *tree
+}
+
+func add(t *tree, value int) *tree {
+	if t == nil {
+		t = new(tree)
+		t.value = value
+		return t
+	}
+	if value < t.value {
+		t.left = add(t.left, value)
+	} else {
+		t.right = add(t.right, value)
+	}
+	return t
+}
+
+func appendValues(values []int, t *tree) []int {
+	if t != nil {
+		values = appendValues(values, t.left)
+		values = append(values, t.value)
+		values = appendValues(values, t.right)
+	}
+	return values
+}
+
+func treeSort(values []int) {
+	var root *tree
+	for _, v := range values {
+		root = add(root, v)
+	}
+	appendValues(values[:0], root)
+}
+
 func main() {
-	var tm, tq, tr int64
+	var tm, tq, tr, tt int64
 	var st time.Time
-	n := 10000
+	n := 1000
 	for k := 0; k < 100; k++ {
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		x := make([]int, n)
@@ -114,10 +154,14 @@ func main() {
 		st = time.Now()
 		_ = randSort(x)
 		tr += time.Since(st).Microseconds()
+		st = time.Now()
+		treeSort(x)
+		tt += time.Since(st).Microseconds()
 	}
-	fmt.Printf("method\ttime\n")
+	fmt.Printf("method\ttime(microsec)\n")
 	fmt.Printf("Merge\t%v\n", float64(tm/100))
-	fmt.Printf("Quic\t %v\n", float64(tq/100))
+	fmt.Printf("Quick\t%v\n", float64(tq/100))
 	fmt.Printf("Rand\t%v\n", float64(tr/100))
+	fmt.Printf("Tree\t%v\n", float64(tt/100))
 
 }
