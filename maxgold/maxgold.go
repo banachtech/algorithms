@@ -59,3 +59,31 @@ func main() {
 	}
 	fmt.Println(stuffem(w, W))
 }
+
+// knapsack algo to compute max stuffed value and stuffed objects
+func stuffem2(S []int, C int) (int, []int) {
+	n := len(S)
+	A := make([][]int, n+1) // solution placeholder
+	for i := range A {
+		A[i] = make([]int, C+1)
+	}
+	for i := 1; i < n+1; i++ {
+		for c := 0; c < C+1; c++ {
+			if S[i-1] > c {
+				A[i][c] = A[i-1][c]
+			} else {
+				A[i][c] = max(A[i-1][c], A[i-1][c-S[i-1]]+S[i-1])
+			}
+		}
+	}
+	// stuffed weights
+	J := make([]int, 0)
+	c := C
+	for i := n; i >= 1; i-- {
+		if S[i-1] <= c && A[i-1][c-S[i-1]]+S[i-1] > A[i-1][c] {
+			J = append(J, i-1)
+			c = c - S[i-1]
+		}
+	}
+	return A[n][C], J
+}

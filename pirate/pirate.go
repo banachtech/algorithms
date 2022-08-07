@@ -31,46 +31,8 @@ func pop(z *[]string) int {
 	return tmp
 }
 
-// compute max stuffed value and stuffed objects
-func stuffem(S []int, C int) (int, []int) {
-	n := len(S)
-	A := make([][]int, n+1) // solution placeholder
-	for i := range A {
-		A[i] = make([]int, C+1)
-	}
-	for i := 1; i < n+1; i++ {
-		for c := 0; c < C+1; c++ {
-			if S[i-1] > c {
-				A[i][c] = A[i-1][c]
-			} else {
-				A[i][c] = max(A[i-1][c], A[i-1][c-S[i-1]]+S[i-1])
-			}
-		}
-	}
-	// stuffed weights
-	J := make([]int, 0)
-	c := C
-	for i := n; i >= 1; i-- {
-		if S[i-1] <= c && A[i-1][c-S[i-1]]+S[i-1] > A[i-1][c] {
-			J = append(J, i-1)
-			c = c - S[i-1]
-		}
-	}
-	return A[n][C], J
-}
-
-// remove indices y from x
-func remove(x, y []int) []int {
-	for _, j := range y {
-		x[0], x[j] = x[j], x[0]
-		x = x[1:]
-	}
-	return x
-}
-
 func main() {
 	var n int
-	var can int
 	// Parse input
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanWords)
@@ -78,29 +40,57 @@ func main() {
 	for scanner.Scan() {
 		str = append(str, scanner.Text())
 	}
-	n = pop(&str)
-	fmt.Println(n)          // number of integers
-	items := make([]int, n) // integers
-	for i := range items {
-		items[i] = pop(&str)
-		fmt.Println(items)
+	n = pop(&str)       // number of integers
+	x := make([]int, n) // integers
+	for i := range x {
+		x[i] = pop(&str)
 	}
-	totalValue := sum(items) // total loot
+	can := split(x)
+	if can {
+		fmt.Println(1)
+	} else {
+		fmt.Println(0)
+	}
+}
+
+func split(x []int) bool {
 	// prelim checks
-	if totalValue%3 == 0 && len(items) >= 3 {
-		fmt.Println("inside if")
-		can = 1
-		share := totalValue / 3
-		for i := 0; i < 3; i++ {
-			fmt.Printf("inside iteration %d\n", i)
-			val, stuff := stuffem(items, share)
-			fmt.Printf("%d %v\n", val, stuff)
-			if val < share {
-				can = 0
-				break
+	y := sum(x)
+	n := len(x)
+	if len(x) < 3 {
+		return false
+	}
+	if y%3 != 0 {
+		return false
+	}
+	seen := make(map[int]bool)
+	seen[n-1] = true
+	s := make([]int, 3)
+	s[0] = x[n-1]
+	return foo(x, s, seen, 0, n-1)
+}
+
+func foo(a, s []int, seen map[int]bool, is, ia int) bool {
+	share := sum(a) / 3
+	if s[is] == share {
+		if is == 1 {
+			return true
+		}
+		return foo(a, s, seen, is+1, ia)
+	}
+	for i := ia; i >= 0; i-- {
+		if !seen[i] {
+			if s[is]+a[i] <= share {
+				seen[i] = true
+				s[is] += a[i]
+				tmp := foo(a, s, seen, is, i-1)
+				if tmp {
+					return true
+				}
+				seen[i] = false // backtrack
+				s[is] -= a[i]
 			}
-			items = remove(items, stuff)
 		}
 	}
-	fmt.Println(can)
+	return false
 }
